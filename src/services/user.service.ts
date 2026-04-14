@@ -149,6 +149,14 @@ export interface UpdateProfileInput {
   politicalViews?: string;
   greekOrganization?: string;
   greekOrganizationType?: string;
+  strengthStats?: {
+    bench?: number;
+    squat?: number;
+    deadlift?: number;
+    pullUps?: number;
+    pushUps?: number;
+    videoUrl?: string;
+  } | null;
 }
 
 export interface OnboardingInput {

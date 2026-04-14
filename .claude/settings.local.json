@@ -6,7 +6,9 @@
       "Bash(npx kill-port:*)",
       "Bash(taskkill /F /IM node.exe)",
       "Bash(curl -s http://localhost:3001/health)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsx:*)"
     ]
   }
 }

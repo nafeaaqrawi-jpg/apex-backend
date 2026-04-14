@@ -105,6 +105,10 @@ export const users = pgTable(
     // Greek life affiliation
     greekOrganization: text('greekOrganization'),
     greekOrganizationType: text('greekOrganizationType'), // 'FRATERNITY' | 'SORORITY' | 'CO-ED'
+    // Strength stats showcase: { bench?, squat?, deadlift?, pullUps?, pushUps?, videoUrl? }
+    strengthStats: jsonb('strengthStats'),
+    // School email verification badge
+    schoolEmailVerified: boolean('schoolEmailVerified').notNull().default(false),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     updatedAt: timestamp('updatedAt').notNull().defaultNow(),
   },

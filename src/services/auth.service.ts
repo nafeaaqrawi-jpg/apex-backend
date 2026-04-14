@@ -36,15 +36,19 @@ export async function registerUser(input: RegisterInput) {
   }
 
   const passwordHash = await hashPassword(input.password);
+  const normalizedEmail = input.email.toLowerCase().trim();
+  // Auto-verify school email: any .edu domain gets the Verified Student badge
+  const schoolEmailVerified = normalizedEmail.endsWith('.edu');
 
   const [user] = await db
     .insert(users)
     .values({
-      email: input.email.toLowerCase().trim(),
+      email: normalizedEmail,
       passwordHash,
       firstName: input.firstName.trim(),
       lastName: input.lastName.trim(),
       age: 0, // placeholder — overwritten with real age computed from DOB during onboarding
+      schoolEmailVerified,
     })
     .returning({ id: users.id, email: users.email, firstName: users.firstName });
 
