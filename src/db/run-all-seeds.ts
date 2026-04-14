@@ -23,7 +23,7 @@ const scripts = [
   'src/db/simulate-bot-activity.ts',
 ];
 
-const root = path.resolve(import.meta.dirname, '../../');
+const root = path.resolve(__dirname, '../../');
 
 for (const script of scripts) {
   const label = path.basename(script, '.ts');
