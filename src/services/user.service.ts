@@ -86,10 +86,12 @@ const PUBLIC_PROFILE_COLUMNS = {
   collegeId: users.collegeId,
   profilePhotoUrl: users.profilePhotoUrl,
   idVerified: users.idVerified,
+  schoolEmailVerified: users.schoolEmailVerified,
   socialLinks: users.socialLinks,
   prompts: users.prompts,
   greekOrganization: users.greekOrganization,
   greekOrganizationType: users.greekOrganizationType,
+  strengthStats: users.strengthStats,
   createdAt: users.createdAt,
 } as const;
 

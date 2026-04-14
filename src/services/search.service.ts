@@ -477,6 +477,7 @@ export async function searchProfiles(query: string, currentUserId: string) {
       relationshipGoal: users.relationshipGoal,
       collegeId: users.collegeId,
       idVerified: users.idVerified,
+      schoolEmailVerified: users.schoolEmailVerified,
       socialLinks: users.socialLinks,
     })
     .from(users)

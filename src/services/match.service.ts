@@ -26,6 +26,7 @@ const safeUserFields = {
   relationshipGoal: users.relationshipGoal,
   collegeId: users.collegeId,
   idVerified: users.idVerified,
+  schoolEmailVerified: users.schoolEmailVerified,
   createdAt: users.createdAt,
 };
 
