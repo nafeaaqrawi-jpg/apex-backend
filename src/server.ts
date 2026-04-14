@@ -40,6 +40,8 @@ app.use((_, res, next) => {
 });
 const ALLOWED_ORIGINS = [
   env.FRONTEND_URL,
+  'https://apex-social.com',
+  'https://www.apex-social.com',
   'https://apex-match.com',
   'https://www.apex-match.com',
   'http://localhost:5173',
