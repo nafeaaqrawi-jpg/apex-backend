@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(node -e \"require\\('tsx/cjs'\\); const ctrl = require\\('./src/controllers/game.controller.ts'\\); console.log\\(Object.keys\\(ctrl\\)\\);\")",
+      "Bash(npx kill-port:*)",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(curl -s http://localhost:3001/health)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}
