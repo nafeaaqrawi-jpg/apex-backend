@@ -14,6 +14,8 @@ import searchRoutes from './routes/search.routes';
 import postRoutes from './routes/post.routes';
 import rizzAssistRoutes from './routes/rizzassist.routes';
 import gameRoutes from './routes/game.routes';
+import agentHubRoutes from './routes/agentHub.routes';
+import telemetryRoutes from './routes/telemetry.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { createSocketServer } from './lib/socket';
 import paymentRoutes from './routes/payment.routes';
@@ -42,6 +44,8 @@ const ALLOWED_ORIGINS = [
   env.FRONTEND_URL,
   'https://apex-social.com',
   'https://www.apex-social.com',
+  'https://tryapextoday.com',
+  'https://www.tryapextoday.com',
   'https://apex-match.com',
   'https://www.apex-match.com',
   'http://localhost:5173',
@@ -92,6 +96,8 @@ app.use('/api', apiLimiter, searchRoutes);
 app.use('/api', apiLimiter, postRoutes);
 app.use('/api', apiLimiter, rizzAssistRoutes);
 app.use('/api/game', apiLimiter, gameRoutes);
+app.use('/api', apiLimiter, agentHubRoutes);
+app.use('/api', apiLimiter, telemetryRoutes);
 app.use('/api/payments', apiLimiter, paymentRoutes);
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
