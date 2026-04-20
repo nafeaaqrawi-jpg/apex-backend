@@ -1,25 +1,19 @@
-import nodemailer from 'nodemailer';
-import { env } from '../config/env';
+import { Resend } from 'resend';
 
-const transporter = nodemailer.createTransport({
-  host: env.SMTP_HOST,
-  port: env.SMTP_PORT,
-  secure: env.SMTP_PORT === 465,
-  auth:
-    env.SMTP_USER && env.SMTP_PASS
-      ? { user: env.SMTP_USER, pass: env.SMTP_PASS }
-      : undefined,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const FROM = process.env.EMAIL_FROM ?? 'Apex <onboarding@resend.dev>';
+const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:5173';
 
 export async function sendVerificationEmail(
   to: string,
   firstName: string,
   token: string
 ): Promise<void> {
-  const verifyUrl = `${env.FRONTEND_URL}/verify-email?token=${token}`;
+  const verifyUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
 
-  await transporter.sendMail({
-    from: env.EMAIL_FROM,
+  const { error } = await resend.emails.send({
+    from: FROM,
     to,
     subject: 'Verify your Apex account',
     html: `
@@ -41,6 +35,10 @@ export async function sendVerificationEmail(
       </div>
     `,
   });
+
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`);
+  }
 }
 
 export async function sendPasswordResetEmail(
@@ -48,10 +46,10 @@ export async function sendPasswordResetEmail(
   firstName: string,
   token: string
 ): Promise<void> {
-  const resetUrl = `${env.FRONTEND_URL}/reset-password?token=${token}`;
+  const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
 
-  await transporter.sendMail({
-    from: env.EMAIL_FROM,
+  const { error } = await resend.emails.send({
+    from: FROM,
     to,
     subject: 'Reset your Apex password',
     html: `
@@ -72,4 +70,8 @@ export async function sendPasswordResetEmail(
       </div>
     `,
   });
+
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`);
+  }
 }
