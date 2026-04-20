@@ -1,6 +1,6 @@
 import http from 'http';
 import express from 'express';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
@@ -32,14 +32,17 @@ app.post(
 
 // ── Security headers ──────────────────────────────────────────────────────────
 app.use(helmet({
-  contentSecurityPolicy: false, // Disabled — Helmet's default CSP breaks Socket.io
-  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: false,      // Breaks Socket.io
+  crossOriginEmbedderPolicy: false,  // Breaks cross-origin asset loads
+  crossOriginResourcePolicy: false,  // Must be off — this is a cross-origin API
+  crossOriginOpenerPolicy: false,    // Let the browser handle this
 }));
 app.use((_, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   next();
 });
+
 const ALLOWED_ORIGINS = [
   env.FRONTEND_URL,
   'https://apex-social.com',
@@ -52,20 +55,27 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5174',
   'http://localhost:5175',
 ];
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl) in dev
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn(`[cors] blocked origin: ${origin}`);
-        callback(null, false);
-      }
-    },
-    credentials: true, // Required for cookies to work cross-origin
-  })
-);
+
+const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, mobile apps, server-to-server)
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`[cors] blocked origin: ${origin}`);
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200, // Some browsers choke on 204 for preflight
+};
+
+// Explicit OPTIONS preflight handler — must come before all routes
+// Railway's edge can intercept OPTIONS before Express; this ensures it's handled
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 
 // ── Request parsing ───────────────────────────────────────────────────────────
 app.use(express.json({ limit: '50kb' }));
