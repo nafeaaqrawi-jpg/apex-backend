@@ -36,4 +36,7 @@ router.post('/reset-password', authLimiter, validate(AuthController.resetPasswor
 router.post('/resend-verification', authLimiter, validate(AuthController.emailSchema), AuthController.resendVerification);
 router.get('/me', generalLimiter, requireAuth, AuthController.me);
 
+// Admin: force-verify any account — requires ADMIN_KEY env var on server
+router.post('/admin/verify', validate(AuthController.adminVerifySchema), AuthController.adminVerify);
+
 export default router;

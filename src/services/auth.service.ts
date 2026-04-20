@@ -303,3 +303,23 @@ export async function resendVerification(email: string) {
     console.error('[email] Failed to send verification email to', user.email, err?.message);
   });
 }
+
+// ── Admin: force-verify any account (requires ADMIN_KEY env var) ──────────────
+export async function adminForceVerify(email: string) {
+  const [user] = await db
+    .select({ id: users.id, email: users.email, firstName: users.firstName, verified: users.verified })
+    .from(users)
+    .where(eq(users.email, email.toLowerCase().trim()))
+    .limit(1);
+
+  if (!user) {
+    throw new AppError('No account found with that email.', 404, 'USER_NOT_FOUND');
+  }
+
+  if (!user.verified) {
+    await db.update(users).set({ verified: true }).where(eq(users.id, user.id));
+  }
+
+  const jwt = signToken({ userId: user.id, email: user.email });
+  return { message: 'Account verified.', jwt, userId: user.id };
+}

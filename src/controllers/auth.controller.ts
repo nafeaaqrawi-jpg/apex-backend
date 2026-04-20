@@ -142,3 +142,23 @@ export async function resendVerification(
     next(err);
   }
 }
+
+export const adminVerifySchema = z.object({
+  email: z.string().email(),
+  adminKey: z.string().min(1),
+});
+
+export async function adminVerify(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const adminKey = process.env.ADMIN_KEY;
+    if (!adminKey || req.body.adminKey !== adminKey) {
+      res.status(403).json({ success: false, error: 'Forbidden.', code: 'FORBIDDEN' });
+      return;
+    }
+    const { jwt, userId } = await AuthService.adminForceVerify(req.body.email);
+    res.cookie('token', jwt, COOKIE_OPTIONS);
+    res.json({ success: true, data: { message: 'Account verified and session started.', userId } });
+  } catch (err) {
+    next(err);
+  }
+}
