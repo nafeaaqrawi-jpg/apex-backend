@@ -42,6 +42,5 @@ export function errorHandler(
     success: false,
     error: 'An unexpected error occurred.',
     code: 'INTERNAL_ERROR',
-    _debug: err?.message,
   });
 }
