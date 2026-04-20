@@ -17,6 +17,8 @@ import gameRoutes from './routes/game.routes';
 import agentHubRoutes from './routes/agentHub.routes';
 import telemetryRoutes from './routes/telemetry.routes';
 import { errorHandler } from './middleware/error.middleware';
+import { db } from './lib/db';
+import { sql } from 'drizzle-orm';
 import { createSocketServer } from './lib/socket';
 import paymentRoutes from './routes/payment.routes';
 import { webhookHandler } from './controllers/payment.controller';
@@ -83,8 +85,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // ── Health check ──────────────────────────────────────────────────────────────
-app.get('/health', (_req, res) => {
-  res.json({ success: true, data: { status: 'ok', env: env.NODE_ENV } });
+app.get('/health', async (_req, res) => {
+  const dbUrl = process.env.DATABASE_URL ?? '';
+  const dbHost = dbUrl ? new URL(dbUrl).hostname : 'not-set';
+  try {
+    await db.execute(sql`SELECT 1`);
+    res.json({ success: true, data: { status: 'ok', env: env.NODE_ENV, db: 'connected', dbHost } });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ success: false, data: { status: 'db-error', env: env.NODE_ENV, dbHost, error: msg } });
+  }
 });
 
 // ── Global API rate limiter (100 req/min per IP) ──────────────────────────────
