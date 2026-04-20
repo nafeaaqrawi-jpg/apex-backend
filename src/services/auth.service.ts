@@ -62,7 +62,12 @@ export async function registerUser(input: RegisterInput) {
     expiresAt,
   });
 
-  await sendVerificationEmail(user.email, user.firstName, token);
+  // Non-fatal: email send failure must not block account creation.
+  // If SMTP is not configured on the server, the account still succeeds
+  // and the user can request a resend later.
+  sendVerificationEmail(user.email, user.firstName, token).catch((err) => {
+    console.error('[email] Failed to send verification email to', user.email, err?.message);
+  });
 
   return {
     message: 'Account created. Check your email to verify your account.',
@@ -183,7 +188,9 @@ export async function forgotPassword(email: string) {
     expiresAt,
   });
 
-  await sendPasswordResetEmail(user.email, user.firstName, token);
+  sendPasswordResetEmail(user.email, user.firstName, token).catch((err) => {
+    console.error('[email] Failed to send password reset email to', user.email, err?.message);
+  });
 }
 
 export async function resetPassword(token: string, newPassword: string) {
@@ -292,5 +299,7 @@ export async function resendVerification(email: string) {
     expiresAt,
   });
 
-  await sendVerificationEmail(user.email, user.firstName, token);
+  sendVerificationEmail(user.email, user.firstName, token).catch((err) => {
+    console.error('[email] Failed to send verification email to', user.email, err?.message);
+  });
 }
