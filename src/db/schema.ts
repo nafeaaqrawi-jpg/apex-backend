@@ -329,6 +329,77 @@ export const userGameState = pgTable('UserGameState', {
 
 export type UserGameState = typeof userGameState.$inferSelect
 
+export const agentChannels = pgTable(
+  'AgentChannel',
+  {
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+    key: text('key').notNull().unique(),
+    title: text('title').notNull(),
+    description: text('description'),
+    metadata: jsonb('metadata'),
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
+    updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  },
+  (t) => [index('agent_channel_key_idx').on(t.key)]
+)
+
+export const agentMessages = pgTable(
+  'AgentMessage',
+  {
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+    channelId: text('channelId').notNull().references(() => agentChannels.id, { onDelete: 'cascade' }),
+    speakerType: text('speakerType').notNull().default('agent'),
+    agentKey: text('agentKey'),
+    displayName: text('displayName').notNull(),
+    roleLabel: text('roleLabel'),
+    content: text('content').notNull(),
+    metadata: jsonb('metadata'),
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
+  },
+  (t) => [
+    index('agent_message_channel_idx').on(t.channelId),
+    index('agent_message_agent_idx').on(t.agentKey),
+  ]
+)
+
+export const agentArtifacts = pgTable(
+  'AgentArtifact',
+  {
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+    channelId: text('channelId').notNull().references(() => agentChannels.id, { onDelete: 'cascade' }),
+    artifactType: text('artifactType').notNull(),
+    title: text('title').notNull(),
+    summary: text('summary').notNull(),
+    content: jsonb('content').notNull(),
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
+    updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  },
+  (t) => [
+    index('agent_artifact_channel_idx').on(t.channelId),
+    index('agent_artifact_type_idx').on(t.artifactType),
+  ]
+)
+
+export const telemetryEvents = pgTable(
+  'TelemetryEvent',
+  {
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+    userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    eventType: text('eventType').notNull(),
+    route: text('route'),
+    entityType: text('entityType'),
+    entityId: text('entityId'),
+    dwellMs: integer('dwellMs'),
+    metadata: jsonb('metadata'),
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
+  },
+  (t) => [
+    index('telemetry_user_idx').on(t.userId),
+    index('telemetry_event_type_idx').on(t.eventType),
+    index('telemetry_route_idx').on(t.route),
+  ]
+)
+
 // ── Fraud alerts (Romance Scam Prevention Act compliance) ────────────────────
 // When a user is banned for fraud, all users they messaged receive a fraud alert.
 // This table provides an audit trail proving notification occurred.
@@ -365,3 +436,7 @@ export type UserPass = typeof userPasses.$inferSelect;
 export type UserReport = typeof userReports.$inferSelect;
 export type AlgorithmSignal = typeof algorithmSignals.$inferSelect;
 export type FraudAlert = typeof fraudAlerts.$inferSelect;
+export type AgentChannel = typeof agentChannels.$inferSelect;
+export type AgentMessage = typeof agentMessages.$inferSelect;
+export type AgentArtifact = typeof agentArtifacts.$inferSelect;
+export type TelemetryEvent = typeof telemetryEvents.$inferSelect;
