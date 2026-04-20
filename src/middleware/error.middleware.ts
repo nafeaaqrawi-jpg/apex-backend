@@ -36,13 +36,12 @@ export function errorHandler(
     return;
   }
 
-  if (process.env.NODE_ENV === 'development') {
-    console.error(err);
-  }
+  console.error('[INTERNAL_ERROR]', err);
 
   res.status(500).json({
     success: false,
     error: 'An unexpected error occurred.',
     code: 'INTERNAL_ERROR',
+    _debug: err?.message,
   });
 }
